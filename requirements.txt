@@ -1,0 +1,33 @@
+# Data & ML
+pandas==2.1.0
+numpy==1.24.0
+scikit-learn==1.3.0
+sentence-transformers==2.2.2
+faiss-cpu==1.7.4
+transformers==4.35.0
+torch==2.0.1
+
+# NLP
+spacy==3.7.0
+nltk==3.8.1
+
+# Database
+pymongo==4.5.0
+python-dotenv==1.0.0
+
+# MLOps
+mlflow==2.8.0
+dvc==3.25.0
+dvc-gdrive==2.20.0
+
+# Graph
+networkx==3.1
+
+# App
+streamlit==1.28.0
+plotly==5.17.0
+
+# Utils
+kaggle==1.5.16
+pyyaml==6.0.1
+tqdm==4.66.1
