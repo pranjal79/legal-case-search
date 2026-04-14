@@ -1,12 +1,19 @@
-# .gitignore
 venv/
 __pycache__/
 *.pyc
 .env
+
+# Ignore raw data
 data/raw/
-data/processed/
+
+# Ignore all processed data BUT allow DVC files
+data/processed/*
+!data/processed/*.dvc
+
+# Optional folders
 data/embeddings/
 models/
 logs/
+
 *.egg-info/
 .DS_Store
