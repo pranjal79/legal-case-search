@@ -3,7 +3,8 @@
 Evaluate search quality and log results to MLflow.
 Uses a small set of known queries with expected keywords in results.
 """
-
+import dagshub
+dagshub.init(repo_owner='pranjal79', repo_name='legal-case-search', mlflow=True)
 import mlflow
 import yaml
 import time

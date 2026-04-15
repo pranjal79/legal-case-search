@@ -7,7 +7,8 @@ Generates embeddings using sentence-transformers
 Builds FAISS index
 Logs metrics to MLflow (local by default)
 """
-
+import dagshub
+dagshub.init(repo_owner='pranjal79', repo_name='legal-case-search', mlflow=True)
 import pandas as pd
 import numpy as np
 import faiss
