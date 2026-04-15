@@ -16,5 +16,5 @@ mongodb:
   collection_name: "cases"
 
 mlflow:
-  experiment_name: "legal-case-search"
-  tracking_uri: "https://dagshub.com/YOUR_USERNAME/legal-case-search.mlflow"
+  tracking_uri: file:./mlruns
+  experiment_name: legal-case-search

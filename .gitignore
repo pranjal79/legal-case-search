@@ -1,7 +1,10 @@
+mlruns/
+data/embeddings/
 venv/
 __pycache__/
 *.pyc
 .env
+
 
 # Ignore raw data
 data/raw/
