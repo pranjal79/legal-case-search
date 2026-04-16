@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_config():
-    with open("configs/config.yaml", "r") as f:
+    with open("configs/config.yaml", "r" , encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 

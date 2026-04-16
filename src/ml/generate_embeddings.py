@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_config():
-    with open("configs/config.yaml", "r") as f:
+    with open("configs/config.yaml", "r" , encoding="utf-8" ) as f:
         return yaml.safe_load(f)
 
 
@@ -128,7 +128,7 @@ def run(config):
         mlflow.log_param("index_type", "IndexFlatIP")
 
         logger.info(f"Loading data from {clean_path}")
-        df = pd.read_csv(clean_path).fillna("")
+        df = pd.read_csv(clean_path, encoding="utf-8", encoding_errors="ignore").fillna("")
         mlflow.log_param("n_cases", len(df))
 
         embeddings, elapsed = generate_embeddings(df, model_name, batch_size)

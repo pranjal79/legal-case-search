@@ -1,20 +1,34 @@
-# configs/config.yaml
+# configs/config.yaml  — full file
+
 data:
-  raw_path: "data/raw/legal_cases.csv"
-  processed_path: "data/processed/cases_clean.csv"
+  raw_path:        "data/raw/supreme_court_pdfs"
+  processed_path:  "data/processed/cases_clean.csv"
   embeddings_path: "data/embeddings/"
+  summaries_path:  "data/processed/cases_with_summaries.csv"
 
 model:
-  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
-  summarizer_model: "facebook/bart-large-cnn"
-  max_seq_length: 512
-  top_k_results: 5
+  embedding_model:  "sentence-transformers/all-MiniLM-L6-v2"
+  summarizer_model: "sshleifer/distilbart-cnn-12-6"
+  classifier_path:  "models/outcome_classifier.pkl"
+  label_enc_path:   "models/label_encoder.pkl"
+  graph_path:       "models/citation_graph.pkl"
+  judge_stats_path: "models/judge_stats.json"
+  max_seq_length:   512
+  top_k_results:    5
 
 mongodb:
-  uri: "mongodb://localhost:27017/"
-  db_name: "legal_cases_db"
+  uri:             "mongodb://localhost:27017/"
+  db_name:         "legal_cases_db"
   collection_name: "cases"
 
 mlflow:
-  tracking_uri: https://dagshub.com/pranjal79/legal-case-search.mlflow
-  experiment_name: legal-case-search
+  
+  tracking_uri:     "https://dagshub.com/pranjal79/legal-case-search.mlflow"
+  experiment_name:  "legal-case-search"
+  model_registry:   "LegalCaseModels"
+
+app:
+  title:            "Legal Case Law Search & Precedent Finder"
+  page_icon:        "⚖️"
+  max_results:      10
+  summary_length:   180

@@ -1,0 +1,68 @@
+# dvc.yaml
+stages:
+
+  extract:
+    cmd: python src/etl/extract.py
+    deps:
+      - src/etl/extract.py
+      - data/raw/supreme_court_pdfs/
+    outs:
+      - data/processed/cases_raw.csv
+    desc: "Extract text from all Supreme Court PDFs"
+
+  transform:
+    cmd: python src/etl/transform.py
+    deps:
+      - src/etl/transform.py
+      - data/processed/cases_raw.csv
+    outs:
+      - data/processed/cases_clean.csv
+    desc: "Clean text, detect outcomes, extract citations"
+
+  load_mongodb:
+    cmd: python src/etl/load_mongodb.py
+    deps:
+      - src/etl/load_mongodb.py
+      - data/processed/cases_clean.csv
+    desc: "Load cleaned data into MongoDB"
+
+  generate_embeddings:
+    cmd: python src/ml/generate_embeddings.py
+    deps:
+      - src/ml/generate_embeddings.py
+      - data/processed/cases_clean.csv
+    outs:
+      - data/embeddings/faiss_index.bin
+      - data/embeddings/case_ids.pkl
+    desc: "Generate sentence embeddings and build FAISS index"
+
+  train_classifier:
+    cmd: python src/ml/train_classifier.py
+    deps:
+      - src/ml/train_classifier.py
+      - data/processed/cases_clean.csv
+    outs:
+      - models/outcome_classifier.pkl
+      - models/label_encoder.pkl
+    metrics:
+      - logs/metrics.json:
+          cache: false
+    desc: "Train outcome prediction classifier, log to MLflow"
+
+  build_graph:
+    cmd: python src/ml/citation_graph.py
+    deps:
+      - src/ml/citation_graph.py
+      - data/processed/cases_clean.csv
+    outs:
+      - models/citation_graph.pkl
+    desc: "Build citation network graph"
+
+  judge_analysis:
+    cmd: python src/ml/judge_analysis.py
+    deps:
+      - src/ml/judge_analysis.py
+      - data/processed/cases_clean.csv
+    outs:
+      - models/judge_stats.json
+    desc: "Compute judge behavior statistics"

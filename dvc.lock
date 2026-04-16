@@ -1,0 +1,122 @@
+schema: '2.0'
+stages:
+  extract:
+    cmd: python src/etl/extract.py
+    deps:
+    - path: data/raw/supreme_court_pdfs/
+      hash: md5
+      md5: d544f28e07e26db4ca64477946838d34.dir
+      size: 7209554539
+      nfiles: 26689
+    - path: src/etl/extract.py
+      hash: md5
+      md5: 319d62000fce4c54863f74fdf0dfd9cb
+      size: 4316
+    outs:
+    - path: data/processed/cases_raw.csv
+      hash: md5
+      md5: f804ba441dd8365fdbfe60317bb75830
+      size: 911552630
+  transform:
+    cmd: python src/etl/transform.py
+    deps:
+    - path: data/processed/cases_raw.csv
+      hash: md5
+      md5: f804ba441dd8365fdbfe60317bb75830
+      size: 911552630
+    - path: src/etl/transform.py
+      hash: md5
+      md5: fbe8cec1d882cfd36e2cf8714987ad81
+      size: 6784
+    outs:
+    - path: data/processed/cases_clean.csv
+      hash: md5
+      md5: 336156f04c99e4e69ac2ddb9813af7a8
+      size: 950523125
+  load_mongodb:
+    cmd: python src/etl/load_mongodb.py
+    deps:
+    - path: data/processed/cases_clean.csv
+      hash: md5
+      md5: 336156f04c99e4e69ac2ddb9813af7a8
+      size: 950523125
+    - path: src/etl/load_mongodb.py
+      hash: md5
+      md5: 1797a5c306b26e2191862119629ccf31
+      size: 2422
+  generate_embeddings:
+    cmd: python src/ml/generate_embeddings.py
+    deps:
+    - path: data/processed/cases_clean.csv
+      hash: md5
+      md5: 336156f04c99e4e69ac2ddb9813af7a8
+      size: 950523125
+    - path: src/ml/generate_embeddings.py
+      hash: md5
+      md5: d01a262e51ba88eeca7a06a4d704d58c
+      size: 5005
+    outs:
+    - path: data/embeddings/case_ids.pkl
+      hash: md5
+      md5: 53af752d4c0535f630c930ea6298ba58
+      size: 2035516
+    - path: data/embeddings/faiss_index.bin
+      hash: md5
+      md5: bc2e65ea2b64dd7d3ffdfece092d84c5
+      size: 40992813
+  train_classifier:
+    cmd: python src/ml/train_classifier.py
+    deps:
+    - path: data/processed/cases_clean.csv
+      hash: md5
+      md5: 336156f04c99e4e69ac2ddb9813af7a8
+      size: 950523125
+    - path: src/ml/train_classifier.py
+      hash: md5
+      md5: 4980f47656122264d5546481b56371fe
+      size: 7679
+    outs:
+    - path: logs/metrics.json
+      hash: md5
+      md5: 7e0a631e635ca3befda6b2170fb8032e
+      size: 162
+    - path: models/label_encoder.pkl
+      hash: md5
+      md5: dfb33e3aa96db236cafe4cd5eda1ab6a
+      size: 275
+    - path: models/outcome_classifier.pkl
+      hash: md5
+      md5: 9e2199423b613f2f17223e2536b27b18
+      size: 593918
+  build_graph:
+    cmd: python src/ml/citation_graph.py
+    deps:
+    - path: data/processed/cases_clean.csv
+      hash: md5
+      md5: 336156f04c99e4e69ac2ddb9813af7a8
+      size: 950523125
+    - path: src/ml/citation_graph.py
+      hash: md5
+      md5: 5f78ced0f4cc537d9bb5824b966666b7
+      size: 6413
+    outs:
+    - path: models/citation_graph.pkl
+      hash: md5
+      md5: e372f335046a92dae54b66cc33dc5095
+      size: 6919757
+  judge_analysis:
+    cmd: python src/ml/judge_analysis.py
+    deps:
+    - path: data/processed/cases_clean.csv
+      hash: md5
+      md5: 336156f04c99e4e69ac2ddb9813af7a8
+      size: 950523125
+    - path: src/ml/judge_analysis.py
+      hash: md5
+      md5: 135d8604acaa36600c2b4dbf58a9863d
+      size: 5322
+    outs:
+    - path: models/judge_stats.json
+      hash: md5
+      md5: 897778254fa12cbd16a7a23bcf26f4ba
+      size: 1187
