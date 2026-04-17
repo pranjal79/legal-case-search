@@ -27,7 +27,7 @@ class LegalCaseSearchEngine:
     """
 
     def __init__(self, config_path: str = "configs/config.yaml"):
-        with open(config_path, "r") as f:
+        with open(config_path, "r" , encoding="utf-8") as f:
             self.config = yaml.safe_load(f)
 
         self._load_model()

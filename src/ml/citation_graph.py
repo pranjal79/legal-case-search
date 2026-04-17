@@ -27,7 +27,6 @@ class CitationGraph:
     def build_from_dataframe(self, df: pd.DataFrame):
         logger.info("Building citation graph...")
 
-        # Normalize year column to string
         df["year"] = df["year"].astype(str)
 
         # ── STEP 1: Add nodes ─────────────────────────────
@@ -45,16 +44,13 @@ class CitationGraph:
                 "outcome": row.get("outcome", ""),
             }
 
-        # ── STEP 2: Build YEAR → CASE MAP (fast lookup) ──
+        # ── STEP 2: Build YEAR MAP ────────────────────────
         year_map = {}
         for _, row in df.iterrows():
             year = str(row.get("year", "")).strip()
             case_id = str(row.get("case_id", "")).strip()
 
-            if year not in year_map:
-                year_map[year] = []
-
-            year_map[year].append({
+            year_map.setdefault(year, []).append({
                 "case_id": case_id,
                 "title": str(row.get("case_title", "")).lower()
             })
@@ -82,16 +78,9 @@ class CitationGraph:
         return self
 
     def _find_case_by_citation(self, ref: str, year_map: dict) -> str:
-        """
-        Improved matching:
-        1. Extract year
-        2. Search within same-year cases
-        3. Match keywords with title
-        """
-
         ref = ref.lower().strip()
 
-        # ── Extract year ─────────────────────────────
+        # Extract year
         year_match = re.search(r'\b(19|20)\d{2}\b', ref)
         if not year_match:
             return None
@@ -103,16 +92,12 @@ class CitationGraph:
 
         candidates = year_map[year]
 
-        # ── Try keyword match ───────────────────────
         ref_words = [w for w in ref.split() if len(w) > 3]
 
         for case in candidates:
-            title = case["title"]
-
-            if any(word in title for word in ref_words[:5]):
+            if any(word in case["title"] for word in ref_words[:5]):
                 return case["case_id"]
 
-        # ── Fallback: return first case of same year ─
         return candidates[0]["case_id"] if candidates else None
 
     def get_most_cited(self, top_n: int = 10) -> list:
@@ -148,6 +133,52 @@ class CitationGraph:
                 "pagerank": round(score, 6),
             })
         return results
+
+    # ✅ ADD THIS METHOD (FIXES YOUR ERROR)
+    def get_subgraph_for_viz(self, case_id, depth=2):
+        if case_id not in self.graph:
+            return {"nodes": [], "edges": []}
+
+        nodes = set([case_id])
+        edges = []
+        frontier = [case_id]
+
+        for _ in range(depth):
+            next_frontier = []
+
+            for node in frontier:
+                # outgoing edges
+                for nbr in self.graph.successors(node):
+                    edges.append({"source": node, "target": nbr})
+                    if nbr not in nodes:
+                        nodes.add(nbr)
+                        next_frontier.append(nbr)
+
+                # incoming edges
+                for nbr in self.graph.predecessors(node):
+                    edges.append({"source": nbr, "target": node})
+                    if nbr not in nodes:
+                        nodes.add(nbr)
+                        next_frontier.append(nbr)
+
+            frontier = next_frontier
+
+        node_data = []
+        for n in nodes:
+            meta = self._case_metadata.get(n, {})
+
+            node_data.append({
+                "id": n,
+                "label": str(meta.get("title", n))[:40],
+                "year": meta.get("year", "?"),
+                "outcome": meta.get("outcome", "unknown"),
+                "is_root": n == case_id
+            })
+
+        return {
+            "nodes": node_data,
+            "edges": edges
+        }
 
     def save(self, path: str = "models/citation_graph.pkl"):
         os.makedirs(os.path.dirname(path), exist_ok=True)
